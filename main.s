@@ -1,16 +1,16 @@
-#include "common.S"
+.include "common.s"
 
 .text
 .global		main
 
-// %rdi = server (string)
-// %rsi = port (string)
+# %rdi = server (string)
+# %rsi = port (string)
 connect_to_server:
         sub     $16, %rsp
         push    %r14
         push    %r15
 
-        // r14 = socket
+        # r14 = socket
         mov     $-1, %r14
 
         mov     $0, %rdx
@@ -20,17 +20,17 @@ connect_to_server:
         jl      1f
 
         mov     8(%rsp), %r15
-        mov     4(%r15), %edi   // 4 = offsetof(addrinfo.ai_family)
-        mov     8(%r15), %esi   // 8 = offsetof(addrinfo.ai_socktype)
-        mov     12(%r15), %edx  // 12 = offsetof(addrinfo.ai_protocol)
+        mov     4(%r15), %edi   # 4 = offsetof(addrinfo.ai_family)
+        mov     8(%r15), %esi   # 8 = offsetof(addrinfo.ai_socktype)
+        mov     12(%r15), %edx  # 12 = offsetof(addrinfo.ai_protocol)
         call    socket
         cmp     $0, %eax
         jl      2f
 
         mov     %rax, %r14
         mov     %eax, %edi
-        mov     24(%r15), %rsi   // 24 = offsetof(addrinfo.ai_addr)
-        mov     16(%r15), %edx   // 16 = offsetof(addrinfo.ai_addrlen)
+        mov     24(%r15), %rsi   # 24 = offsetof(addrinfo.ai_addr)
+        mov     16(%r15), %edx   # 16 = offsetof(addrinfo.ai_addrlen)
         call    connect
         cmp     $0, %eax
         jge     2f
@@ -50,7 +50,7 @@ connect_to_server:
         ret
 
 
-// %rdi = string to parse (modified)
+# %rdi = string to parse (modified)
 parse_serverport:
         mov     %rdi, servername(%rip)
 
@@ -59,7 +59,7 @@ parse_serverport:
         test    %rax, %rax
         jne     1f
 
-        // not found
+        # not found
         mov     $-1, %rax
         jmp     2f
 
@@ -68,20 +68,20 @@ parse_serverport:
         inc     %rax
         mov     %rax, serverport(%rip)
 
-        // return success
+        # return success
         xor     %rax, %rax
 
 2:
         ret 
 
 
-// %rdi = argc
-// %rsi = argv
+# %rdi = argc
+# %rsi = argv
 parse_args:
         push    %r14
         push    %r15
 
-        // copy argc, argv to r14, r15
+        # copy argc, argv to r14, r15
         mov     %rdi, %r14
         mov     %rsi, %r15
 
@@ -97,7 +97,7 @@ parse_args:
         mov     16(%r15), %rax
         mov     %rax, nickname(%rip)
 
-        // success
+        # success
         xor     %rax, %rax
         jmp     1f
 
@@ -110,12 +110,12 @@ parse_args:
         ret
 
 
-// %rdi = argc
-// %rsi = argv
+# %rdi = argc
+# %rsi = argv
 main:
         push    %r15
 
-        // save argv[0]
+        # save argv[0]
         mov     (%rsi), %r15
 
         call    parse_args
@@ -154,4 +154,4 @@ main:
 connectmsg:     .asciz  "Connecting to %s:%s ...\n"
 usagemsg:       .asciz  "Usage: %s <server:port> <nickname>\n"
 
-// vim: expandtab:
+# vim: expandtab:
